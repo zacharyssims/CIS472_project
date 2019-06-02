@@ -85,7 +85,7 @@ def clean_data(pitcher):
         pitcher['home_team'] = pitcher.apply(lambda row: hamels_home(row),axis=1)
     if pitcher['player_name'][0] == 'Max Scherzer':
         pitcher['home_team'] = pitcher.apply(lambda row: scherzer_home(row),axis=1)  
-    pitcher_cols = ['game_pk','pitch_type','pfx_x','pfx_z','description','release_speed',
+    pitcher_cols = ['batter','pitch_type','pfx_x','pfx_z','description','release_speed',
                     'plate_x','plate_z','stand_L', 'home_team', 'balls','strikes',
                     'on_3b', 'on_2b', 'on_1b', 'outs_when_up']
     pitcher = pitcher[pitcher_cols]
@@ -93,11 +93,13 @@ def clean_data(pitcher):
     strikes_ohe = pd.get_dummies(pitcher['strikes'],prefix='strikes')
     outs_ohe = pd.get_dummies(pitcher['outs_when_up'],prefix='outs')
     des_ohe = pd.get_dummies(pitcher['description'])
+    pitch_ohe = pd.get_dummies(pitcher['pitch_type'])
     pitcher.drop(['balls','strikes','outs_when_up','description'],axis=1,inplace=True)
     pitcher =  pitcher.join(balls_ohe)
     pitcher = pitcher.join(strikes_ohe)
     pitcher = pitcher.join(outs_ohe)
     pitcher = pitcher.join(des_ohe)
+    pitcher = pitcher.join(pitch_ohe)
     return pitcher
 
 #transform data into a list of games 
@@ -111,7 +113,19 @@ def get_games(pitcher):
         if index != (len(game_id) - 1) and game_id[index] != game_id[index + 1]:
             games.append(game)
             game = []
-    return games  
+    return games 
+
+def get_abs(pitcher):
+    batter_id = pitcher['batter']
+    pitcher = pitcher.values
+    ABs = []
+    AB = []
+    for index in reversed(range(len(batter_id))):
+        AB.append(pitcher[index])
+        if index != (len(batter_id) - 1) and batter_id[index] != batter_id[index + 1]:
+            ABs.append(AB)
+            AB = []
+    return ABs  
 
 
 #transform data into representations for model, i.e. (PREV_PITCHES,PREV_PTYPES,PRE_PITCH,PTYPE) where:
@@ -121,20 +135,42 @@ def get_games(pitcher):
 #PRE_PITCH is a  one_hot vector describing the pre-pitch game state for the pitch to predict, in terms of number of outs,
 #BALLS, and strikes, runners on base, if the pitcher is home or not, and whether the batter is left handed
 #PTYPE is the target pitch type for prediction 
-def get_reps(pitcher_games):
+'''def get_reps(pitcher_games):
     reps = []
     for game in pitcher_games:
         ptypes = [pitch[1] for pitch in game]
         prev_pitch_cont = [pitch[2:7].tolist() for pitch in game]
-        prev_pitch_disc = [pitch[22:].tolist() for pitch in game]
+        prev_pitch_disc = [pitch[22:38].tolist() for pitch in game]
+        ptypes_ = [pitch[38:42].tolist() for pitch in game]
         pitches = zip(prev_pitch_cont,prev_pitch_disc)
-        prev_pitches = [cont + disc for cont,disc in pitches]
+        prevs = [cont + disc for cont,disc in pitches]
+        pitches_ = zip(prevs,ptypes_)
+        prev_pitches = [prev + ptype for prev,ptype in pitches_]
         pre_pitch = [pitch[7:22].tolist() for pitch in game]
         game_len = len(game)
         for i in range(game_len):
             if i < (game_len - 1) - 6:
                 rep = (prev_pitches[i:i+5],ptypes[i:i+5],pre_pitch[i+5],ptypes[i+5])
                 reps.append(rep)
+    return reps '''
+def get_reps(pitcher_ABs):
+    reps = []
+    for AB in pitcher_ABs:
+        ptypes = [pitch[1] for pitch in AB]
+        prev_pitch_cont = [pitch[2:7].tolist() for pitch in AB]
+        prev_pitch_disc = [pitch[22:38].tolist() for pitch in AB]
+        ptypes_ = [pitch[38:42].tolist() for pitch in AB]
+        pitches = zip(prev_pitch_cont,prev_pitch_disc)
+        prevs = [cont + disc for cont,disc in pitches]
+        pitches_ = zip(prevs,ptypes_)
+        prev_pitches = [prev + ptype for prev,ptype in pitches_]
+        pre_pitch = [pitch[7:22].tolist() for pitch in AB]
+        AB_len = len(AB)
+        if AB_len >= 3:
+            for i in range(AB_len):
+                if i < (AB_len - 1) - 4:
+                    rep = (prev_pitches[i:i+3],ptypes[i:i+3],pre_pitch[i+3],ptypes[i+3])
+                    reps.append(rep)
     return reps 
 
 #drop any representation that contains a NaN value
