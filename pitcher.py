@@ -157,10 +157,13 @@ def get_reps(pitcher_ABs):
     reps = []
     for AB in pitcher_ABs:
         prev_0 = [0]*9
-        ptypes = [pitch[1] for pitch in AB]
-        for p in ptypes:
-            if p != 'FF':
-                p = 'NF'
+        ptypes = []
+        for pitch in AB:
+            if pitch[1] != 'FF':
+                ptypes.append('NF') 
+            else:
+                ptypes.append('FF')
+        
         prev_pitch_cont = [pitch[2:7].tolist() for pitch in AB]
         #prev_pitch_disc = [pitch[22:38].tolist() for pitch in AB]
         ptypes_ = [pitch[38:42].tolist() for pitch in AB]
@@ -241,3 +244,24 @@ def drop_pitches(reps):
         if ptype in ['CU','FF','SL','CH']:
                 good_reps.append(rep)
     return good_reps 
+
+
+def get_batches(train,batch_size):   
+    out = []
+    i = 0
+    batch_ptypes = []
+    batch_pre_pitch = []
+    batch_prev_pitches = []
+    for rep in train:
+        prev_pitches,prev_types,pre_pitch,ptype = rep
+        if i % batch_size == 0:
+            out.append([batch_prev_pitches,batch_pre_pitch,batch_ptypes])
+            batch_ptypes = [ptype]
+            batch_pre_pitch = [pre_pitch]
+            batch_prev_pitches = [prev_pitches]
+        else:
+            batch_ptypes.append(ptype)
+            batch_pre_pitch.append(pre_pitch)
+            batch_prev_pitches.append(prev_pitches)
+        i += 1
+    return out[1:]
