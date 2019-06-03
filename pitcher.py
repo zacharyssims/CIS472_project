@@ -156,22 +156,36 @@ def get_abs(pitcher):
 def get_reps(pitcher_ABs):
     reps = []
     for AB in pitcher_ABs:
+        prev_0 = [0]*9
         ptypes = [pitch[1] for pitch in AB]
         prev_pitch_cont = [pitch[2:7].tolist() for pitch in AB]
-        prev_pitch_disc = [pitch[22:38].tolist() for pitch in AB]
+        #prev_pitch_disc = [pitch[22:38].tolist() for pitch in AB]
         ptypes_ = [pitch[38:42].tolist() for pitch in AB]
-        pitches = zip(prev_pitch_cont,prev_pitch_disc)
-        prevs = [cont + disc for cont,disc in pitches]
-        pitches_ = zip(prevs,ptypes_)
-        prev_pitches = [prev + ptype for prev,ptype in pitches_]
+        #pitches = zip(prev_pitch_cont,prev_pitch_disc)
+        pitches = zip(prev_pitch_cont,ptypes_)
+        #prevs = [cont + disc for cont,disc in pitches]
+        #pitches_ = zip(prevs,ptypes_)
+        prev_pitches = [prev + ptype for prev,ptype in pitches]
+        #prev_pitches_ = [prev + ptype for prev,ptype in pitches_]
         pre_pitch = [pitch[7:22].tolist() for pitch in AB]
+        #prev_p = zip(prev_pitches_,pre_pitch)
+        #prev_pitches = [prev + prepitch for prev,prepitch in prev_p]
         AB_len = len(AB)
-        if AB_len >= 3:
-            for i in range(AB_len):
-                if i < (AB_len - 1) - 4:
-                    rep = (prev_pitches[i:i+3],ptypes[i:i+3],pre_pitch[i+3],ptypes[i+3])
-                    reps.append(rep)
-    return reps 
+        for i in range(AB_len):
+            if i == 0:
+                prevs = [prev_0]*3
+                prev_ptypes = ['NA']*3
+            elif i == 1:
+                prevs = [prev_0]*2 + [prev_pitches[i-1]]
+                prev_ptypes =  ['NA']*2 + [ptypes[i-1]]
+            elif i == 2:
+                prevs = [prev_0] + prev_pitches[i-2:i]
+                prev_ptypes =  ['NA'] + [ptypes[i-2:i]]
+            else:
+                prevs = prev_pitches[i-3:i]
+                prev_ptypes =  ptypes[i-3:i]
+            reps.append((prevs,prev_ptypes,pre_pitch[i],ptypes[i]))
+    return reps
 
 #drop any representation that contains a NaN value
 def drop_nas(reps):
