@@ -156,23 +156,23 @@ def get_abs(pitcher):
 def get_reps(pitcher_ABs):
     reps = []
     for AB in pitcher_ABs:
-        prev_0 = [0]*9
+        prev_0 = [0]*25
         ptypes = []
         for pitch in AB:
             if pitch[1] != 'FF':
                 ptypes.append('NF') 
             else:
                 ptypes.append('FF')
-        
+
         prev_pitch_cont = [pitch[2:7].tolist() for pitch in AB]
-        #prev_pitch_disc = [pitch[22:38].tolist() for pitch in AB]
+        prev_pitch_disc = [pitch[22:38].tolist() for pitch in AB]
         ptypes_ = [pitch[38:42].tolist() for pitch in AB]
-        #pitches = zip(prev_pitch_cont,prev_pitch_disc)
-        pitches = zip(prev_pitch_cont,ptypes_)
-        #prevs = [cont + disc for cont,disc in pitches]
-        #pitches_ = zip(prevs,ptypes_)
-        prev_pitches = [prev + ptype for prev,ptype in pitches]
-        #prev_pitches_ = [prev + ptype for prev,ptype in pitches_]
+        pitches = zip(prev_pitch_cont,prev_pitch_disc)
+        ###pitches = zip(prev_pitch_cont,ptypes_)
+        prevs = [cont + disc for cont,disc in pitches]
+        pitches_ = zip(prevs,ptypes_)
+        ###prev_pitches = [prev + ptype for prev,ptype in pitches]
+        prev_pitches = [prev + ptype for prev,ptype in pitches_]
         pre_pitch = [pitch[7:22].tolist() for pitch in AB]
         #prev_p = zip(prev_pitches_,pre_pitch)
         #prev_pitches = [prev + prepitch for prev,prepitch in prev_p]
