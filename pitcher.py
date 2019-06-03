@@ -158,6 +158,9 @@ def get_reps(pitcher_ABs):
     for AB in pitcher_ABs:
         prev_0 = [0]*9
         ptypes = [pitch[1] for pitch in AB]
+        for p in ptypes:
+            if p != 'FF':
+                p = 'NF'
         prev_pitch_cont = [pitch[2:7].tolist() for pitch in AB]
         #prev_pitch_disc = [pitch[22:38].tolist() for pitch in AB]
         ptypes_ = [pitch[38:42].tolist() for pitch in AB]
