@@ -170,6 +170,7 @@ def get_reps(pitcher_ABs):
         pitches = zip(prev_pitch_cont,prev_pitch_disc)
         ###pitches = zip(prev_pitch_cont,ptypes_)
         prevs = [cont + disc for cont,disc in pitches]
+        #prevs = prev_pitch_cont
         pitches_ = zip(prevs,ptypes_)
         ###prev_pitches = [prev + ptype for prev,ptype in pitches]
         prev_pitches = [prev + ptype for prev,ptype in pitches_]
