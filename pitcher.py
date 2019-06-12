@@ -178,6 +178,16 @@ def get_reps(pitcher_ABs):
         #prev_p = zip(prev_pitches_,pre_pitch)
         #prev_pitches = [prev + prepitch for prev,prepitch in prev_p]
         AB_len = len(AB)
+        if AB_len <= 6:
+            prevs = [prev_pitches] + ([prev_0]*(6-AB_len))
+            states = [[0]*15]+[pre_pitch[1:]] + ([[0]*15]*(6-AB_len))
+            pitches = ['NF'] + [ptypes[1:]] + (['NF']*(6-AB_len))
+        else:
+            prevs = [prev_pitches[:7]]
+            states = [[0]*15]+[pre_pitch[1:7]]
+            pitches = ['NF'] + [ptypes[1:7]]
+        #reps.append(prevs,states,pitches)
+
         for i in range(AB_len):
             if i == 0:
                 prevs = [prev_0]*3
