@@ -1,4 +1,4 @@
-# CIS472_project
+# CIS 472 Project: Predicting Baseball Pitch Types
 ## All Code in This repository is created by Zac Sims
 
 - The main notebook, 'LSTM Model.ipynb', contains the Reccurent Neural Network Model that predicts whether the next pitch thrown is a fastball or not based off a learned encoding of the last three pitches and an encoding of the game situation before the pitch.
