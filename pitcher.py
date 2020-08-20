@@ -1,6 +1,4 @@
 import pandas as pd
-i
-hello = "hello"
 #Verlander:
 ##DET(2008-2017) HOU(2017-2019)
 def verlander_home(verlander):
